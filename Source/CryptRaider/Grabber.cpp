@@ -26,13 +26,15 @@ void UGrabber::BeginPlay()
 	//finds the physics handle component on the owner of this component
 	UPhysicsHandleComponent* PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
 	//if the physics handle is found
-	if(PhysicsHandle!= nullptr)
+	if(PhysicsHandle != nullptr)
 	{
 		// PhysicsHandle->GetName();
 		UE_LOG(LogTemp, Display, TEXT("Physics handle found: %s"), *PhysicsHandle->GetName());
 	}else
 	{
+//logs error
 		UE_LOG(LogTemp, Error, TEXT("Physics handle not found on %s"), *GetOwner()->GetName());
+PrimaryComponentTick.bCanEverTick = false; // Disable ticking
 	}
 }
 
@@ -44,7 +46,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	
 	//Finds the physics handle component on the owner of this component
 	UPhysicsHandleComponent* PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if(PhysicsHandle != nullptr)
+	if(PhysicsHandle == nullptr)
 		return;
 
 	//calculates the how far the object should be from the player
