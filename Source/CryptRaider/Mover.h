@@ -57,7 +57,5 @@ private:
 
 	void Move(float DeltaTime);
 	void Oscillate(float DeltaTime);
-	void StartPause();
-	void EndPause();
 	void Rotate(float DeltaTime);
 };
