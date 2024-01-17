@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "PhysicsEngine/PhysicsHandleComponent.h"
+
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "Grabber.generated.h"
@@ -30,11 +32,18 @@ public:
 	void Release();
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Collision")
+	UPROPERTY(EditAnywhere, Category = "Grabber")
 	float Reach = 400;    
-	UPROPERTY(EditAnywhere, Category = "Collision")
+	UPROPERTY(EditAnywhere, Category = "Grabber")
 	float Radius = 100;
-	UPROPERTY(EditAnywhere, Category = "Collision")
+	UPROPERTY(EditAnywhere, Category = "Grabber")
 	float HoldDistance = 200;
+
+	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+
+	UPhysicsHandleComponent* GetPhysicsHandle() const;
+	bool SetPhysicsHandle(UPhysicsHandleComponent* NewPhysicsHandle);
+	bool GetGrabbableInReach(FHitResult& OutHitResult) const;
+	float i = 0;
 		
 };

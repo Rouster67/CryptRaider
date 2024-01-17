@@ -5,7 +5,6 @@
 
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
-#include "PhysicsEngine/PhysicsHandleComponent.h"
 
 // Sets default values for this component's properties
 UGrabber::UGrabber()
@@ -23,18 +22,16 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//finds the physics handle component on the owner of this component
-	UPhysicsHandleComponent* PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	//if the physics handle is found
-	if(PhysicsHandle != nullptr)
+	//Sets the physics handle component and checks if the physics handle is valid
+	if(!SetPhysicsHandle(GetPhysicsHandle()))
 	{
-		// PhysicsHandle->GetName();
-		UE_LOG(LogTemp, Display, TEXT("Physics handle found: %s"), *PhysicsHandle->GetName());
-	}else
-	{
-//logs error
+		//logs error
 		UE_LOG(LogTemp, Error, TEXT("Physics handle not found on %s"), *GetOwner()->GetName());
-PrimaryComponentTick.bCanEverTick = false; // Disable ticking
+		//disables the component
+		this->Deactivate();
+		//stops component from ticking
+		PrimaryComponentTick.bCanEverTick = false; // Disable ticking
+		return;
 	}
 }
 
@@ -44,46 +41,34 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	//Finds the physics handle component on the owner of this component
-	UPhysicsHandleComponent* PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if(PhysicsHandle == nullptr)
-		return;
+	//checks if the physics handle is valid and if the player is holding something
+	if(PhysicsHandle && PhysicsHandle->GetGrabbedComponent() != nullptr)
+	{
+		//calculates how far the object should be from the player
+		FVector TargetLocation = GetComponentLocation() + GetForwardVector() * HoldDistance;
 
-	//calculates the how far the object should be from the player
-	FVector TargetLocation = GetComponentLocation() + GetForwardVector() * HoldDistance;
-	//updates grabed items location and rotation
-	PhysicsHandle->SetTargetLocationAndRotation(TargetLocation, GetComponentRotation());
+		//updates grabed items location and rotation
+		PhysicsHandle->SetTargetLocationAndRotation(TargetLocation, GetComponentRotation());
+	}
 }
 
 void UGrabber::Grab()
 {
-	//Finds the physics handle component on the owner of this component
-	UPhysicsHandleComponent* PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if(PhysicsHandle != nullptr)
+	//checks if the physics handle is valid
+	if(PhysicsHandle == nullptr)
 		return;
 
-	//creates the start and end of the line trace
-	FVector LineStart = GetComponentLocation();
-	FVector LineEnd = LineStart + GetForwardVector() * Reach;
-
-	//creates the shape for the line trace
-	FCollisionShape Sphere = FCollisionShape::MakeSphere(Radius);
-
-	//creates the line trace stores the result in HitResult and returns true if it hits something
+	//fires a line trace and stores the result in HitResult
 	FHitResult HitResult;
-	bool HasHit = GetWorld()->SweepSingleByChannel(
-		HitResult,
-		LineStart, LineEnd,
-		FQuat::Identity,
-		ECC_GameTraceChannel2,
-		Sphere
-	);
-
-	//if the line trace hits something, Grabs the component at the impact point
-	if(HasHit)
+	if(GetGrabbableInReach(HitResult))
 	{
+		//grabs the component that was hit
+		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+		//kickstarts the physics on the grabbed component
+		HitComponent->WakeAllRigidBodies();
+		//grabs the component
 		PhysicsHandle->GrabComponentAtLocationWithRotation(
-			HitResult.GetComponent(),
+			HitComponent,
 			NAME_None,
 			HitResult.ImpactPoint,
 			GetComponentRotation()
@@ -93,5 +78,49 @@ void UGrabber::Grab()
 
 void UGrabber::Release()
 {
-	UE_LOG(LogTemp, Display, TEXT("Grab released"));
+	//checks if the physics handle is valid and if the player is holding something
+	if(PhysicsHandle && PhysicsHandle->GetGrabbedComponent() != nullptr)
+	{
+		//kickstarts the physics on the grabbed component
+		PhysicsHandle->GetGrabbedComponent()->WakeAllRigidBodies();
+		//releases the component
+		PhysicsHandle->ReleaseComponent();
+	}
 }	
+
+UPhysicsHandleComponent* UGrabber::GetPhysicsHandle() const
+{
+	//finds the physics handle component on the owner of this component
+	return GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+}
+
+bool UGrabber::SetPhysicsHandle(UPhysicsHandleComponent* NewPhysicsHandle)
+{
+	if(NewPhysicsHandle != nullptr)
+	{
+		PhysicsHandle = NewPhysicsHandle;
+		return true;
+	} else
+	{
+		return false;
+	}
+}
+
+bool UGrabber::GetGrabbableInReach(FHitResult& OutHitResult) const
+{
+	//creates the start and end of the line trace
+	FVector LineStart = GetComponentLocation();
+	FVector LineEnd = LineStart + GetForwardVector() * Reach;
+
+	//creates the shape for the line trace
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(Radius);
+
+	//creates the line trace stores the result in HitResult and returns true if it hits something
+	return GetWorld()->SweepSingleByChannel(
+		OutHitResult,
+		LineStart, LineEnd,
+		FQuat::Identity,
+		ECC_GameTraceChannel2,
+		Sphere
+	);
+}
