@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Mover.h"
+#include "GameFramework/Actor.h"
 
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
@@ -31,9 +32,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetMover(UMover* NewMover);
 
+
 private:
 	UPROPERTY(EditAnywhere, category = "KeyTrigger")
 		FName KeyName = "SkeletonKey";
+	UPROPERTY(EditAnywhere, category = "KeyTrigger")
+		bool AttachSnap = false;
 	UPROPERTY(EditAnywhere, category = "KeyTrigger")
 		UMover* Mover;
 

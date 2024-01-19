@@ -27,9 +27,14 @@ public:
 	void SetMoveOffset(FVector UpdateMoveOffset);
 	void SetMoveTime(float UpdateMoveTime);
 
+	UFUNCTION(BlueprintCallable)
+	void SetShouldMove(bool UpdateShouldMove);
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Mover|Movement")
 	bool ShouldMove = false;
+	UPROPERTY(EditAnywhere, Category = "Mover|Movement")
+	bool ShouldReturn = false;
 	UPROPERTY(EditAnywhere, Category = "Mover|Movement")
 	bool ShouldOscillate = false;
 	UPROPERTY(EditAnywhere, Category = "Mover|Movement")
@@ -56,6 +61,21 @@ private:
 	FRotator TargetRotation;
 
 	void Move(float DeltaTime);
-	void Oscillate(float DeltaTime);
+	void MoveBack(float DeltaTime);
 	void Rotate(float DeltaTime);
+	void RotateBack(float DeltaTime);
+	void Oscillate(float DeltaTime);
 };
+
+
+/*
+	Implement MoveBack()
+	Change Move so that it no longer recalculates the target location every frame
+	Change Move so that it sets ShouldMove to false when it reaches the target location
+		--Apply this to all functions
+	Reimplement Oscillate so that it calls upon Move and Return rather than having its own code
+	Add and implement a RotateBack() function
+	Consider Changing Oscillate so that it can be called upon the move and rotate functions
+
+	Implement tick to be more efficient
+*/

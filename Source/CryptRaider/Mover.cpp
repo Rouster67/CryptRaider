@@ -33,7 +33,7 @@ void UMover::BeginPlay()
 	StartRotation = GetOwner()->GetActorRotation();
 	
 	//calculate the target location and rotation
-	TargetLocation= StartLocation + MoveOffset;
+	TargetLocation = StartLocation + MoveOffset;
 	TargetRotation = StartRotation + FRotator(RotateOffset.Pitch, RotateOffset.Yaw, RotateOffset.Roll);
 }
 
@@ -45,10 +45,18 @@ void UMover::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponent
 
 	if(ShouldMove)
 		Move(DeltaTime);
+	if(ShouldReturn)
+		UE_LOG(LogTemp, Display, TEXT("Should Return is true"));
+		// Return(DeltaTime);
 	if(ShouldOscillate)
 		Oscillate(DeltaTime);
 	if(ShouldRotate)
 		Rotate(DeltaTime);
+}
+
+void UMover::SetShouldMove(bool UpdateShouldMove)
+{
+	ShouldMove = UpdateShouldMove;
 }
 
 void UMover::SetMoveOffset(FVector UpdateMoveOffset)
@@ -71,6 +79,28 @@ void UMover::Move(float DeltaTime)
 	FVector NewLocation = FMath::VInterpConstantTo(CurrentLocation, TargetLocation, DeltaTime, Speed);
 	//set the new location
 	GetOwner()->SetActorLocation(NewLocation);
+}
+
+void UMover::MoveBack(float DeltaTime)
+{
+	//implement this
+}
+
+void UMover::Rotate(float DeltaTime)
+{
+	//get the current rotation
+	FRotator CurrentRotation = GetOwner()->GetActorRotation();
+	//calculate the speed
+	float Speed = 90 / RotateTime;
+	//interpolate the rotation
+	FRotator NewRotation = FMath::RInterpConstantTo(CurrentRotation, TargetRotation, DeltaTime, Speed);
+	//set the new rotation
+	GetOwner()->SetActorRotation(NewRotation);
+}
+
+void UMover::RotateBack(float DeltaTime)
+{
+	//implement this
 }
 
 void UMover::Oscillate(float DeltaTime)
@@ -97,16 +127,4 @@ void UMover::Oscillate(float DeltaTime)
 			TargetLocation= StartLocation + MoveOffset;
 		}
 	}
-}
-
-void UMover::Rotate(float DeltaTime)
-{
-	//get the current rotation
-	FRotator CurrentRotation = GetOwner()->GetActorRotation();
-	//calculate the speed
-	float Speed = 90 / RotateTime;
-	//interpolate the rotation
-	FRotator NewRotation = FMath::RInterpConstantTo(CurrentRotation, TargetRotation, DeltaTime, Speed);
-	//set the new rotation
-	GetOwner()->SetActorRotation(NewRotation);
 }

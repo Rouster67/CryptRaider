@@ -66,6 +66,8 @@ void UGrabber::Grab()
 		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
 		//kickstarts the physics on the grabbed component
 		HitComponent->WakeAllRigidBodies();
+		//adds the grabbed tag to the actor
+		HitResult.GetActor()->Tags.Add("Grabbed");
 		//grabs the component
 		PhysicsHandle->GrabComponentAtLocationWithRotation(
 			HitComponent,
@@ -81,8 +83,12 @@ void UGrabber::Release()
 	//checks if the physics handle is valid and if the player is holding something
 	if(PhysicsHandle && PhysicsHandle->GetGrabbedComponent() != nullptr)
 	{
+		//gets the PhysicsHandle's PrimitiveComponent
+		UPrimitiveComponent* PrimitiveComponent = PhysicsHandle->GetGrabbedComponent();
+		//removes the grabbed tag from the actor
+		PrimitiveComponent->GetOwner()->Tags.Remove("Grabbed");
 		//kickstarts the physics on the grabbed component
-		PhysicsHandle->GetGrabbedComponent()->WakeAllRigidBodies();
+		PrimitiveComponent->WakeAllRigidBodies();
 		//releases the component
 		PhysicsHandle->ReleaseComponent();
 	}

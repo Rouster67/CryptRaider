@@ -17,7 +17,6 @@ UKeyTrigger::UKeyTrigger()
 void UKeyTrigger::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // Called every frame
@@ -25,12 +24,27 @@ void UKeyTrigger::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    if(GetAcceptableActor() != nullptr)
-    {
-        UE_LOG(LogTemp, Display, TEXT("KeyTrigger: Key accepted!"));
+    //Checks if the actor is valid and if the mover is valid and if the actor is not grabbed
+    AActor* Actor = GetAcceptableActor();
+    if(Actor && Mover != nullptr)
+    {   
+        //Casts the actor to a primitive component and sets it to not simulate physics
+        UPrimitiveComponent* Component = Cast<UPrimitiveComponent>(Actor->GetRootComponent());
+        if(Component != nullptr)
+            Component->SetSimulatePhysics(false);
+        
+        //Attaches the actor to the key trigger with the option to snap or not
+        if(AttachSnap)
+            Actor->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+        else
+            Actor->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
+
+
+        //Sets the mover to move
+        Mover->SetShouldMove(true);
     }else
     {
-        UE_LOG(LogTemp, Display, TEXT("KeyTrigger: No key accepted!"));
+        Mover->SetShouldMove(false);
     }
 }
 
@@ -45,10 +59,10 @@ AActor* UKeyTrigger::GetAcceptableActor() const
     TArray<AActor*> OverlappingActors;
     GetOverlappingActors(OverlappingActors);
 
-    // Iterate through the array and return the first actor that has keyname as a tag
+    // Iterate through the array and return the first actor that is not grabbed and has keyname as a tag
     for(AActor* Actor : OverlappingActors)
     {
-        if(Actor->ActorHasTag(KeyName))
+        if(Actor->ActorHasTag(KeyName) && !Actor->ActorHasTag("Grabbed"))
         {
             return Actor;
         }
