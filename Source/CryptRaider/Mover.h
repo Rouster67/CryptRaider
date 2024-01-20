@@ -24,26 +24,33 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mover|Movement")
+	bool ShouldMove = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mover|Movement")
+	bool ShouldOscillate = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mover|Rotation")
+	bool ShouldRotate = false;
+
 	void SetMoveOffset(FVector UpdateMoveOffset);
 	void SetMoveTime(float UpdateMoveTime);
 
 	UFUNCTION(BlueprintCallable)
 	void SetShouldMove(bool UpdateShouldMove);
+	UFUNCTION(BlueprintCallable)
+	void SetShouldRotate(bool UpdateShouldRotate);
+
+	
 
 private:
+	
 	UPROPERTY(EditAnywhere, Category = "Mover|Movement")
-	bool ShouldMove = false;
-	UPROPERTY(EditAnywhere, Category = "Mover|Movement")
-	bool ShouldReturn = false;
-	UPROPERTY(EditAnywhere, Category = "Mover|Movement")
-	bool ShouldOscillate = false;
+	bool ShouldMoveBack = false;
+	
 	UPROPERTY(EditAnywhere, Category = "Mover|Movement")
 	FVector MoveOffset = FVector(0, 0, 0);
 	UPROPERTY(EditAnywhere, Category = "Mover|Movement")
 	float MoveTime = 4;
-
-	UPROPERTY(EditAnywhere, Category = "Mover|Rotation")
-	bool ShouldRotate = false;
+	
 	UPROPERTY(EditAnywhere, Category = "Mover|Rotation")
 	FRotator RotateOffset = FRotator(0, 0, 0);
 	UPROPERTY(EditAnywhere, Category = "Mover|Rotation")

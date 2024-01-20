@@ -64,10 +64,18 @@ void UGrabber::Grab()
 	{
 		//grabs the component that was hit
 		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+		AActor* HitActor = HitResult.GetActor();
+
 		//kickstarts the physics on the grabbed component
 		HitComponent->WakeAllRigidBodies();
+		//sets the physics on the grabbed component to simulate
+		HitComponent->SetSimulatePhysics(true);
+		//detaches the actor from the current parent
+		HitActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
 		//adds the grabbed tag to the actor
-		HitResult.GetActor()->Tags.Add("Grabbed");
+		HitActor->Tags.Add("Grabbed");
+
 		//grabs the component
 		PhysicsHandle->GrabComponentAtLocationWithRotation(
 			HitComponent,

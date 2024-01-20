@@ -45,9 +45,8 @@ void UMover::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponent
 
 	if(ShouldMove)
 		Move(DeltaTime);
-	if(ShouldReturn)
-		UE_LOG(LogTemp, Display, TEXT("Should Return is true"));
-		// Return(DeltaTime);
+	else if(ShouldMoveBack)
+		MoveBack(DeltaTime);
 	if(ShouldOscillate)
 		Oscillate(DeltaTime);
 	if(ShouldRotate)
@@ -57,6 +56,11 @@ void UMover::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponent
 void UMover::SetShouldMove(bool UpdateShouldMove)
 {
 	ShouldMove = UpdateShouldMove;
+}
+
+void UMover::SetShouldRotate(bool UpdateShouldRotate)
+{
+	ShouldRotate = UpdateShouldRotate;
 }
 
 void UMover::SetMoveOffset(FVector UpdateMoveOffset)
@@ -74,7 +78,7 @@ void UMover::Move(float DeltaTime)
 	//get the current location
 	FVector CurrentLocation = GetOwner()->GetActorLocation();
 	//calculate the speed
-	float Speed = FVector::Distance(StartLocation, TargetLocation) / MoveTime;
+	float Speed = MoveOffset.Length() / MoveTime;
 	//interpolate the location
 	FVector NewLocation = FMath::VInterpConstantTo(CurrentLocation, TargetLocation, DeltaTime, Speed);
 	//set the new location
@@ -83,7 +87,14 @@ void UMover::Move(float DeltaTime)
 
 void UMover::MoveBack(float DeltaTime)
 {
-	//implement this
+	//get the current location
+	FVector CurrentLocation = GetOwner()->GetActorLocation();
+	//calculate the speed
+	float Speed = MoveOffset.Length() / MoveTime;
+	//interpolate the location
+	FVector NewLocation = FMath::VInterpConstantTo(CurrentLocation, SpawnLocation, DeltaTime, Speed);
+	//set the new location
+	GetOwner()->SetActorLocation(NewLocation);
 }
 
 void UMover::Rotate(float DeltaTime)

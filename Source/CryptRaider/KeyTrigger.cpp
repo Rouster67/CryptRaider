@@ -42,15 +42,20 @@ void UKeyTrigger::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 
         //Sets the mover to move
         Mover->SetShouldMove(true);
+
+        //Sets the mover to rotate
+        Mover->SetShouldRotate(true);
     }else
     {
         Mover->SetShouldMove(false);
+        Mover->SetShouldRotate(false);
     }
 }
 
 void UKeyTrigger::SetMover(UMover* NewMover)
 {
-    Mover = NewMover;
+    if(NewMover != nullptr)
+        Mover = NewMover;
 }
 
 AActor* UKeyTrigger::GetAcceptableActor() const
