@@ -43,3 +43,7 @@ private:
 
 	AActor* GetAcceptableActor() const;
 };
+
+/*
+	add error logging if mover is null
+*/

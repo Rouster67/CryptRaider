@@ -56,6 +56,8 @@ void UKeyTrigger::SetMover(UMover* NewMover)
 {
     if(NewMover != nullptr)
         Mover = NewMover;
+    // else
+        // UE_LOG(LogTemp, Error, TEXT("Mover is null on %s") *GetOwner()->GetActorNameOrLabel());
 }
 
 AActor* UKeyTrigger::GetAcceptableActor() const
